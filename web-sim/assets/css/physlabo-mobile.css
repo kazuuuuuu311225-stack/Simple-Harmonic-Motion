@@ -1,0 +1,284 @@
+/**
+ * physLabo — スマホ・タブレット向け（sim 安全版）
+ *
+ * sim ページ: viewport スクリプトが狭い画面で 1180px 縮小表示 → PC と同じレイアウト。
+ *   ここでは横スクロール抑制・タップ領域のみ（canvas の width/height は変更しない）。
+ * 章一覧・トップ: device-width の @media で読みやすく調整。
+ *
+ * PC（広い画面）: 下記の @media 外は実質レイアウト変更なし。
+ */
+html.physlabo-unified-layout {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
+}
+
+html.physlabo-unified-layout body {
+  touch-action: manipulation;
+  overscroll-behavior-x: none;
+}
+
+/* タッチ端末: ボタン類のタップしやすさ（canvas・グラフ領域は対象外） */
+@media (hover: none) and (pointer: coarse) {
+  html.physlabo-unified-layout button,
+  html.physlabo-unified-layout .hero-cta,
+  html.physlabo-unified-layout .toolbar-btn,
+  html.physlabo-unified-layout .act-btn,
+  html.physlabo-unified-layout .guide-step,
+  html.physlabo-unified-layout .guide-sub,
+  html.physlabo-unified-layout .menu-link,
+  html.physlabo-unified-layout .toggle-btn,
+  html.physlabo-unified-layout .mode-btn,
+  html.physlabo-unified-layout input[type="range"] {
+    min-height: 44px;
+  }
+
+  html.physlabo-unified-layout input[type="range"] {
+    min-height: 32px;
+  }
+}
+
+html.physlabo-unified-layout .btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── 章一覧・トップ（device-width）: 768px 以下 ── */
+@media (max-width: 768px) {
+  html.physlabo-unified-layout .page-wrap {
+    width: 100%;
+    max-width: 100%;
+    padding-left: max(6px, env(safe-area-inset-left));
+    padding-right: max(6px, env(safe-area-inset-right));
+    box-sizing: border-box;
+  }
+
+  html.physlabo-unified-layout.chapters-mode .page-wrap {
+    width: 100%;
+  }
+
+  html.physlabo-unified-layout section.panel,
+  html.physlabo-unified-layout .panel {
+    padding: 12px 14px;
+  }
+
+  html.physlabo-unified-layout .param-grid.three,
+  html.physlabo-unified-layout .layout-3col,
+  html.physlabo-unified-layout .tri-grid,
+  html.physlabo-unified-layout .journey-steps,
+  html.physlabo-unified-layout .example-grid,
+  html.physlabo-unified-layout .inquiry-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  html.physlabo-unified-layout .readout-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html.physlabo-unified-layout .inquiry-left,
+  html.physlabo-unified-layout .inquiry-note {
+    position: static !important;
+    top: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html.physlabo-unified-layout .chapter.is-open .sim-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  html.physlabo-unified-layout .btn-row button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: calc(50% - 4px);
+  }
+
+  html.physlabo-unified-layout .chapter-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  html.physlabo-unified-layout .toolbar-actions {
+    width: 100%;
+  }
+
+  html.physlabo-unified-layout .toolbar-actions .toolbar-btn {
+    flex: 1;
+  }
+
+  html.physlabo-unified-layout .chapter-toggle {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+}
+
+/* ── スマホ（480px 以下） ── */
+@media (max-width: 480px) {
+  html.physlabo-unified-layout .readout-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html.physlabo-unified-layout .btn-row button {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  html.physlabo-unified-layout .hud-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html.physlabo-unified-layout .guide-bar {
+    gap: 4px;
+  }
+
+  html.physlabo-unified-layout .guide-step {
+    min-width: calc(33% - 4px);
+    font-size: 0.62rem;
+  }
+}
+
+/* ── タブレット横（769px〜1024px） ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  html.physlabo-unified-layout .param-grid.three {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html.physlabo-unified-layout .readout-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ── パスワードゲート ── */
+html.auth-gate-open,
+body.auth-gate-open {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100000 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  background: rgba(2, 6, 23, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overscroll-behavior: contain;
+}
+
+.auth-gate:not(.hidden) {
+  display: flex !important;
+}
+
+.auth-gate.hidden {
+  display: none !important;
+}
+
+.auth-panel {
+  width: min(420px, 100%);
+  padding: 24px 22px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(15, 23, 42, 0.96), rgba(8, 14, 36, 0.98));
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.auth-panel h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.1rem, 4.5vw, 1.3rem);
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.auth-panel p {
+  margin: 0 0 16px;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.55;
+}
+
+.auth-error {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: #fca5a5;
+  text-align: center;
+}
+
+.auth-error.hidden {
+  display: none;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.auth-actions button {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.auth-actions button.primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border-color: rgba(99, 102, 241, 0.6);
+  color: #fff;
+}
+
+.auth-panel input.auth-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  background: rgba(2, 6, 23, 0.85);
+  color: #f1f5f9;
+  font-size: 16px;
+  font-family: inherit;
+  letter-spacing: 0.14em;
+  text-align: center;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.auth-panel input.auth-input:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.auth-toggle-vis {
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-actions button {
+  min-height: 48px;
+  touch-action: manipulation;
+}
