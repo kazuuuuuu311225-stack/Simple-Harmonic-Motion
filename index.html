@@ -490,8 +490,7 @@ body.auth-gate-open {
     .warn-box.show { display: block; }
     #runStatus.running { color: #6ee7b7; }
     #runStatus.paused { color: #fde047; }
-    body:not(.auth-unlocked) .page-shell { visibility: hidden; }
-    body.auth-unlocked .page-shell { visibility: visible; }
+    #lessonToggle { display: none !important; }
     .shm-auth-gate {
       position: fixed; inset: 0; z-index: 100000;
       display: flex; align-items: center; justify-content: center;
@@ -520,59 +519,7 @@ body.auth-gate-open {
 
   </style>
 </head>
-<body>
-  <script>
-    (function () {
-      var KEY = "physlabo_shm_va_unlocked";
-      var PASS = "19981225";
-      function isOpen() {
-        try { return sessionStorage.getItem(KEY) === "1"; } catch (e) { return false; }
-      }
-      function unlock() {
-        try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
-        document.body.classList.add("auth-unlocked");
-        var g = document.getElementById("shmAuthGate");
-        if (g) g.remove();
-      }
-      if (isOpen()) {
-        document.body.classList.add("auth-unlocked");
-        return;
-      }
-      function showGate() {
-        if (document.getElementById("shmAuthGate")) return;
-        var gate = document.createElement("div");
-        gate.id = "shmAuthGate";
-        gate.className = "shm-auth-gate";
-        gate.setAttribute("role", "dialog");
-        gate.setAttribute("aria-modal", "true");
-        gate.innerHTML =
-          '<div class="shm-auth-panel">' +
-          "<h2>パスワード入力</h2>" +
-          "<p>このシミュレーションを見るにはパスワードが必要です。</p>" +
-          '<input type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="パスワード">' +
-          '<p class="err" role="alert">パスワードが正しくありません</p>' +
-          '<button type="button">入室</button>' +
-          "</div>";
-        document.body.appendChild(gate);
-        var input = gate.querySelector("input");
-        var err = gate.querySelector(".err");
-        var btn = gate.querySelector("button");
-        function submit() {
-          if (input.value === PASS) { unlock(); return; }
-          err.classList.add("show");
-          input.focus();
-          input.select();
-        }
-        btn.addEventListener("click", submit);
-        input.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") { e.preventDefault(); submit(); }
-        });
-        setTimeout(function () { input.focus(); }, 80);
-      }
-      if (document.body) showGate();
-      else document.addEventListener("DOMContentLoaded", showGate);
-    })();
-  </script>
+<body class="lesson-mode">
   <div class="page-shell">
     <header class="page-header">
       <div class="hero-icon">↔</div>
@@ -667,7 +614,7 @@ body.auth-gate-open {
                 </div>
               </div>
             </div>
-            <div class="lesson-toggle" id="lessonToggle" role="button" tabindex="0">授業モード：オフ</div>
+            
           </div>
         </div>
       </div>
@@ -1216,23 +1163,10 @@ body.auth-gate-open {
       });
     });
 
-    const lessonToggle = document.getElementById("lessonToggle");
     function setLessonMode(on) {
       document.body.classList.toggle("lesson-mode", on);
-      lessonToggle.classList.toggle("is-on", on);
-      lessonToggle.textContent = "授業モード：" + (on ? "オン" : "オフ");
-      try { localStorage.setItem("physlabo_shm_lesson", on ? "1" : "0"); } catch (err) {}
       draw();
     }
-    lessonToggle.addEventListener("click", () => {
-      setLessonMode(!document.body.classList.contains("lesson-mode"));
-    });
-    lessonToggle.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        setLessonMode(!document.body.classList.contains("lesson-mode"));
-      }
-    });
 
     startBtn.addEventListener("click", (e) => { e.preventDefault(); startSimulation(); });
     document.getElementById("pauseBtn").addEventListener("click", (e) => { e.preventDefault(); pauseSimulation(); });
@@ -1256,19 +1190,9 @@ body.auth-gate-open {
     resetSimulation();
 
     (function initLessonMode() {
-      let on = false;
-      try {
-        const q = new URLSearchParams(location.search).get("lesson");
-        if (q === "1") on = true;
-        else if (q === "0") on = false;
-        else on = localStorage.getItem("physlabo_shm_lesson") === "1";
-      } catch (err) { on = false; }
-      // 授業モードでは φ スライダーを隠すため、生徒が直せない値が残らないよう既定に戻す。
-      if (on) {
-        document.getElementById("phiSlider").value = DEFAULTS.phi;
-        syncSliders();
-      }
-      setLessonMode(on);
+      document.getElementById("phiSlider").value = DEFAULTS.phi;
+      syncSliders();
+      setLessonMode(true);
     })();
 
     let lastTime = 0;
